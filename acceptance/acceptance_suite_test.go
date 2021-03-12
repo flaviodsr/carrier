@@ -31,9 +31,11 @@ func TestAcceptance(t *testing.T) {
 var nodeSuffix, nodeTmpDir string
 
 var withKnative bool
+var withKfserving bool
 
 func init() {
-	flag.BoolVar(&withKnative, "with-knative", false, "test carrier with knative pre-installed")
+	flag.BoolVar(&withKnative, "with-knative", false, "test carrier with knative")
+	flag.BoolVar(&withKfserving, "with-kfserving", false, "test carrier with kfserving")
 }
 
 var _ = SynchronizedBeforeSuite(func() []byte {
@@ -84,6 +86,11 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 	if withKnative {
 		fmt.Printf("Installing Knative on node %d\n", config.GinkgoConfig.ParallelNode)
 		installKnative()
+	}
+
+	if withKfserving {
+		fmt.Printf("Installing KFServing on node %d\n", config.GinkgoConfig.ParallelNode)
+		installKfserving()
 	}
 
 	fmt.Printf("Installing Carrier on node %d\n", config.GinkgoConfig.ParallelNode)
@@ -155,6 +162,13 @@ func installKnative() {
 	_, err := RunProc("make knative-install", "..", false)
 	if err != nil {
 		panic("Installing Knative failed: " + err.Error())
+	}
+}
+
+func installKfserving() {
+	_, err := RunProc("make kfserving-install", "..", false)
+	if err != nil {
+		panic("Installing KFServing failed: " + err.Error())
 	}
 }
 

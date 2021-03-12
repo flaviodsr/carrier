@@ -43,8 +43,11 @@ test:
 test-acceptance-traefik:
 	@./scripts/test-acceptance.sh
 
-test-acceptance-istio/knative:
+test-acceptance-knative:
 	@./scripts/test-acceptance.sh -- -with-knative=true
+
+test-acceptance-kfserving:
+	@./scripts/test-acceptance.sh -- -with-kfserving=true
 
 generate:
 	go generate ./...

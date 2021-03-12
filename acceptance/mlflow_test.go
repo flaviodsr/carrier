@@ -26,16 +26,22 @@ var _ = Describe("MLflow Model", func() {
 
 		It("pushes and deletes an mlflow model", func() {
 			By("pushing the mlflow model")
+			// give some time for the tekton listener to start listening
+			time.Sleep(10 * time.Second)
 			currentDir, err := os.Getwd()
 			Expect(err).ToNot(HaveOccurred())
 			appDir := path.Join(currentDir, "../mlflow-model")
 
-			out, err := Carrier("push --verbosity 1 "+appName, appDir)
+			pushCmd := "push --verbosity 1 "
+			if withKfserving {
+				pushCmd = pushCmd + "--serve kfserving "
+			}
+			out, err := Carrier(pushCmd+appName, appDir)
 			Expect(err).ToNot(HaveOccurred(), out)
 			out, err = Carrier("apps", "")
 			Expect(err).ToNot(HaveOccurred(), out)
 			routeRegex := `.*\|.*1\/1.*\|.*`
-			if withKnative {
+			if withKnative || withKfserving {
 				routeRegex = `.*\|.*[0,1]\/[0,1].*\|.*`
 			}
 			Expect(out).To(MatchRegexp(appName + routeRegex))
