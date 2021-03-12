@@ -188,7 +188,7 @@ func buildCarrier() {
 }
 
 func copyCarrier() {
-	output, err := RunProc("cp dist/carrier-* "+nodeTmpDir+"/carrier", "..", false)
+	output, err := RunProc("cp dist/carrier "+nodeTmpDir+"/", "..", false)
 	if err != nil {
 		panic(fmt.Sprintf("Couldn't copy Carrier: %s\n %s\n"+err.Error(), output))
 	}
