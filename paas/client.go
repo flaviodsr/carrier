@@ -151,11 +151,17 @@ func (c *CarrierClient) Apps() error {
 			}
 
 			knService, err := knc.ServingV1().Services(c.config.CarrierWorkloadsNamespace).
-				Get(context.TODO(), fmt.Sprintf("%s-%s", c.config.Org, app.Name), metav1.GetOptions{})
+				List(context.TODO(), metav1.ListOptions{LabelSelector: fmt.Sprintf("fluo/app-guid=%s.%s", c.config.Org, app.Name)})
 			if err != nil {
 				return errors.Wrap(err, "failed to get knative service")
 			}
-			routes = knService.Status.URL.String()
+			if len(knService.Items) < 1 {
+				return errors.Wrapf(err, "failed to get routes for app '%s'", app.Name)
+			}
+
+			// FIXME: KN services created by KFServing has -predictor-default appended into its URL, this code is hardcoded to replace it for now
+			// but needs a better approach for this
+			routes = strings.ReplaceAll(knService.Items[0].Status.URL.String(), "-predictor-default.", ".")
 		} else {
 			details.Info("kube get ingress", "App", app.Name)
 			ingRoutes, err := c.kubeClient.ListIngressRoutes(
