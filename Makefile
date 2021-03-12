@@ -97,6 +97,12 @@ istio-install:
 knative-install: istio-install
 	@./scripts/knative-install.sh
 
+cert-manager-install:
+	@./scripts/cert-manager-install.sh
+
+kfserving-install: knative-install cert-manager-install
+	@./scripts/kfserving-install.sh
+
 ########################################################################
 # Kube dev environments
 
